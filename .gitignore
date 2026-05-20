@@ -61,3 +61,6 @@ builds/
 *.tmp
 .scripts/
 .notes/
+.docs/
+.audit/
+.venv/

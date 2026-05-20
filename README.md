@@ -8,7 +8,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/thedivergentai/gd-agentic-skills?style=for-the-badge&logo=github&color=58A6FF)](https://github.com/thedivergentai/gd-agentic-skills/stargazers)
 [![License](https://img.shields.io/badge/License-LGPL--3.0-blue?style=for-the-badge)](LICENSE)
 [![Godot Version](https://img.shields.io/badge/Godot-4.5%2B-478CBF?style=for-the-badge&logo=godotengine&logoColor=white)](https://godotengine.org/)
-[![Skills](https://img.shields.io/badge/Skills-94-green?style=for-the-badge)](skills_index.json)
+[![Skills](https://img.shields.io/badge/Skills-96-green?style=for-the-badge)](skills_index.json)
 [![Last Commit](https://img.shields.io/github/last-commit/thedivergentai/gd-agentic-skills?style=for-the-badge&color=purple)](https://github.com/thedivergentai/gd-agentic-skills/commits/main)
 
 **"A skill forgotten is a power lost." — The Code Architect**
@@ -46,13 +46,14 @@
 ## 📜 Updates
 
 <div align="center">
-  <img src="assets/banner_0_0_6.webp" alt="The Expert Augmentation Update - v0.0.6" width="100%" />
+  <img src="assets/banner_0_0_7.webp" alt="The Analyze, Audit, Build! Update - v0.0.7" width="100%" />
 </div>
 
-#### v0.0.6 — The Expert Augmentation & Master Orchestration Update
-- **Microskill Overhaul**: We spent many hours updating *all* microskills to contain top expert-level knowledge, directly extracted from the Godot documentation. This massive update ensures all resources are true to the current engine state, empowering developers with best practices and reducing AI slop.
-- **Godot Master Takes Control**: We updated the `godot-master` skill to fully orchestrate and integrate this major skill update. It is now a true, all-in-one Godot Master skill!
-- **Feedback Requested**: We'd love your feedback on the new updates! The easiest way to share your thoughts is to [open an issue or start a discussion on our GitHub](https://github.com/thedivergentai/gd-agentic-skills/issues).
+#### v0.0.7 — The Analyze, Audit, Build! Update
+- **Three Persona-Based Skills**: We introduced specialized agent skills for `@godot-analyst` (Anara), `@godot-auditor` (Aurelius), and `@godot-builder` to streamline and unify our persona development and code optimization workflows.
+- **MCP Clean-up & Direct Building**: Defunct `MCP Setup` and `MCP Builder` skills have been removed; we now use Auditor and Builder to construct and compile projects directly via the Godot CLI, maximizing native efficiency.
+- **Full Skills Audit**: Completed a comprehensive and rigorous audit of all microskills to elevate the knowledge depth and execution quality to the highest agentic standard.
+- **Lead Architect Sync**: Synchronized all audited advancements with the central `godot-master` hub, making the orchestrator smarter, faster, and more robust.
 
 <br/>
 
@@ -60,6 +61,17 @@
 
 <details>
 <summary><b>📜 Update Archive</b></summary>
+
+<br/>
+
+<div align="center">
+  <img src="assets/banner_0_0_6.webp" alt="The Expert Augmentation Update - v0.0.6" width="100%" />
+</div>
+
+#### v0.0.6 — The Expert Augmentation & Master Orchestration Update
+- **Microskill Overhaul**: We spent many hours updating *all* microskills to contain top expert-level knowledge, directly extracted from the Godot documentation. This massive update ensures all resources are true to the current engine state, empowering developers with best practices and reducing AI slop.
+- **Godot Master Takes Control**: We updated the `godot-master` skill to fully orchestrate and integrate this major skill update. It is now a true, all-in-one Godot Master skill!
+- **Feedback Requested**: We'd love your feedback on the new updates! The easiest way to share your thoughts is to [open an issue or start a discussion on our GitHub](https://github.com/thedivergentai/gd-agentic-skills/issues).
 
 <br/>
 
@@ -162,13 +174,13 @@ npx skills add thedivergentai/gd-agentic-skills/skills/godot-characterbody-2d
 To keep your AI agent fast and accurate, follow these "Expert Efficiency" rules:
 
 ### 1. The "Power of One" Rule
-Either use **`godot-master`** (which orchestrates the other 93 skills via references) OR use individual **micro-skills**. 
+Either use **`godot-master`** (which orchestrates the other 95 skills via references) OR use individual **micro-skills**. 
 
 *   **Godot Master** is an "Orchestrator" skill. It is dense (~15k tokens) but provides a complete blueprint. Use it when the "Big Picture" matters.
 *   **Micro-Skills** are "Surgical" skills (~2-5k tokens). They are fast, reliable, and keep the agent focused on one specific API.
 
 ### 2. Why "Install All" Fails
-Installing 94 skills simultaneously creates a **"Metadata Flood"**:
+Installing 96 skills simultaneously creates a **"Metadata Flood"**:
 - **Token Bleed**: ~15,000 tokens are "permanently" used just to tell the agent which skills exist.
 - **Instruction Conflicts**: Having multiple overlapping expert instructions (e.g., 20+ different genre blueprints) can cause the agent to lose its specific focus.
 - **Reasoning Lag**: The model has to sift through 100+ KB of text before deciding what to do.
@@ -181,14 +193,14 @@ Installing 94 skills simultaneously creates a **"Metadata Flood"**:
 
 ## 🏆 Godot Master — Your Lead Architect
 
-The **[godot-master](skills/godot-master/SKILL.md)** skill is the crown jewel of this repository—a consolidated expert library that orchestrates all 94 specialized skills into a unified architectural framework.
+The **[godot-master](skills/godot-master/SKILL.md)** skill is the crown jewel of this repository—a consolidated expert library that orchestrates all 96 specialized skills into a unified architectural framework.
 
 ### 🎯 What Makes Godot Master Special?
 
 Unlike individual micro-skills that focus on isolated features, **godot-master** is your *system architect*. It provides:
 
 **📚 Comprehensive Knowledge Base**
-- **94 Reference Documents**: Complete markdown guides for every skill, from foundations to advanced genres
+- **96 Reference Documents**: Complete markdown guides for every skill, from foundations to advanced genres
 - **982 Unique Production Scripts**: Battle-tested, production-ready GDScript implementations
 - **10 Workflow Patterns**: Step-by-step architectural workflows (scaffolding, entity orchestration, persistence, optimization, multiplayer, etc.)
 
@@ -512,10 +524,10 @@ If this project accelerates your Godot development or empowers your AI agents, c
 
 | Metric | Value |
 |:---|:---|
-| **Total Skills** | 94 |
+| **Total Skills** | 96 |
 | **Genre Blueprints** | 27 |
 | **Production Scripts** | 982 |
-| **Reference Documents** | 94 |
+| **Reference Documents** | 96 |
 | **Target Engine** | Godot 4.5+ |
 | **License** | LGPLv3 |
 
