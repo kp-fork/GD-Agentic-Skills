@@ -17,20 +17,6 @@ I want this library to be the "Long-Term Memory" your agents need to build your 
 
 ---
 
-## 🛡️ Meet the Squad: Aurelius & Anara
-**March 20, 2026**
-
-The library just got a major IQ boost. 🧠 Say hello to our new **Expert-Grade Diagnostics Duo**.
-
-- **Aurelius (Auditor)**: The project's "Stoic Parent." He's here to audit your code for technical debt and "Main Thread Slop." He talks like a Roman general but cares like a guardian. Check out his manifesto in `skills/godot-auditor`.
-- **Anara (Analyst)**: The "Visionary Hype-Girl." She doesn't just see code; she sees your project's soul. She'll score your health and, if you're elite enough, materialize a **Glassmorphism v2 Certificate** for you.
-
-> "Aurelius found a string-based signal in my Player script and I've never felt more judged... or more safe." — *Trial User*
-
----
-
----
-
 ## 🚀 Major Release: v0.0.8 — The Director's Cut Update
 **July 7, 2026**
 
@@ -38,10 +24,74 @@ The library just got a major IQ boost. 🧠 Say hello to our new **Expert-Grade 
   <img src="assets/banner_0_0_8.webp" alt="The Director's Cut Update - v0.0.8" width="100%" />
 </div>
 
-- **Godot 4.7 Upgrade**: All 92 Domain Skills updated to Godot 4.7+ with migration digest, targeted API deltas (AreaLight3D, HDR, Asset Store, ImageUnit, Jolt physics), and version string sweep.
+Godot 4.7 dropped and we didn't just bump a version string — we gave the **entire library** a Director's Cut pass. 🎬 Every Domain Skill, every persona script, every mirror in `godot-master` now speaks **4.7+** fluently. Your agents get the migration notes *before* they write the slop.
+
+- **Godot 4.7 Upgrade**: All 92 Domain Skills updated with a committed migration digest, targeted API deltas, and a full version string sweep across the stack.
 - **godot-master Sync**: Full mirror refresh of domain skill references and bundled scripts for 4.7.
-- **Domain Skills Rename**: "Micro-Skills" renamed to **Domain Skills** across public documentation.
-- **Persona Squad 4.7**: Anara modernity scoring, Aurelius 4.7 never-list sector, Builder `GODOT_PATH` env overrides.
+- **Domain Skills Rename**: "Micro-Skills" are now **Domain Skills** — same modular expertise, clearer branding on the feed.
+- **Persona Squad 4.7**: Anara scores 4.7 modernity signals, Aurelius opened **Sector IX** (the 4.7 never-list), and Builder respects `GODOT_PATH` so your CLI isn't married to one install folder.
+
+> "Anara gave my horror prototype +10 for AreaLight3D and Aurelius vetoed my `width_in_percent` RichTextLabel in the same session. I feel seen." — *Beta Tester*
+
+---
+
+## 🎬 Director's Cut: Godot 4.7 Tidbits
+**July 7, 2026**
+
+*Quick hits from the engine release your agents now know by heart.*
+
+**"Finally, a real rectangle of light."**
+
+4.7 ships **AreaLight3D** — actual rectangular area lights with soft shadows. No more faking neon signs with emissive materials and praying GI cooperates. Your `godot-3d-lighting` and horror genre skills already route agents there.
+
+> [!TIP]
+> **Pro Tip:** If your agent suggests emissive quads for "screen glow," point it at AreaLight3D first. The Director's Cut is about *cinematic* defaults.
+
+---
+
+**"HDR isn't a PC flex anymore."**
+
+HDR output landed on desktop *and* mobile (plus visionOS). Platform and lighting Domain Skills now treat HDR as baseline, not a stretch goal for showcase builds.
+
+---
+
+**"The Asset Library graduated."**
+
+Godot's **Asset Store** replaces the old Asset Library — threaded loading, ratings, zoom previews. Foundations and export skills reflect the new workflow so agents don't send you to dead UI labels.
+
+---
+
+**"Your thumb deserves a native joystick."**
+
+Built-in **virtual joystick** on mobile. No plugin archaeology required. `godot-platform-mobile` and adapt-desktop-to-mobile skills cover it — ship touch controls without a dependency rabbit hole.
+
+---
+
+**"Aurelius has opinions about 4.6 leftovers."**
+
+Sector IX of the never-list is live. Highlights your agents must not sleep on:
+
+- `RichTextLabel` **`width_in_percent` / `height_in_percent`** → gone; use `width_unit` / `height_unit` with `ImageUnit`.
+- **`AudioEffectSpectrumAnalyzer.tap_back_pos`** → removed. RIP.
+- Mouse/keyboard **`event.device == 0`** → use `InputEvent.DEVICE_ID_MOUSE` and `DEVICE_ID_KEYBOARD`.
+- **Jolt `SoftBody3D`** → mass and stiffness math changed; retune after upgrade or your jelly physics becomes *abstract art*.
+
+> "I thought my platformer one-ways were broken. Turns out 4.7 wants one-way direction on the **shape**, not just the body. GDSkills caught it." — *Trial User*
+
+---
+
+**"2D platformers: one-way collision grew a compass."**
+
+**CollisionShape2D** one-way direction is now relative to shape orientation — not just "up is magic." Platformer and 2D physics Domain Skills document the new mental model.
+
+---
+
+<div align="center">
+
+**🍿 That's the Director's Cut.**  
+*96 skills. Zero 4.6 assumptions. Go build something worth a close-up.*
+
+</div>
 
 ---
 
@@ -66,6 +116,18 @@ Is your Player script 2,000 lines long? Are you afraid to touch the `Enemy.gd` b
 
 > [!TIP]
 > **Pro Tip:** In Godot 4, use `@export` variables to link components in the Inspector. It’s like LEGO for game dev. Check it out in [skills/godot-composition](skills/godot-composition/SKILL.md).
+
+---
+
+## 🛡️ Meet the Squad: Aurelius & Anara
+**March 20, 2026**
+
+The library just got a major IQ boost. 🧠 Say hello to our new **Expert-Grade Diagnostics Duo**.
+
+- **Aurelius (Auditor)**: The project's "Stoic Parent." He's here to audit your code for technical debt and "Main Thread Slop." He talks like a Roman general but cares like a guardian. Check out his manifesto in `skills/godot-auditor`.
+- **Anara (Analyst)**: The "Visionary Hype-Girl." She doesn't just see code; she sees your project's soul. She'll score your health and, if you're elite enough, materialize a **Glassmorphism v2 Certificate** for you.
+
+> "Aurelius found a string-based signal in my Player script and I've never felt more judged... or more safe." — *Trial User*
 
 ---
 
