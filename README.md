@@ -3,8 +3,6 @@
 <div align="center">
   <img src="assets/hero_banner.webp" alt="GD Agentic Skills - Godot 4.x Mastery Library" width="100%" />
 
-<br/>
-
 [![GitHub Stars](https://img.shields.io/github/stars/thedivergentai/gd-agentic-skills?style=for-the-badge&logo=github&color=58A6FF)](https://github.com/thedivergentai/gd-agentic-skills/stargazers)
 [![License](https://img.shields.io/badge/License-LGPL--3.0-blue?style=for-the-badge)](LICENSE)
 [![Godot Version](https://img.shields.io/badge/Godot-4.7%2B-478CBF?style=for-the-badge&logo=godotengine&logoColor=white)](https://godotengine.org/)
@@ -28,17 +26,16 @@
 > 
 > <details>
 > <summary><b>Read the full message...</b></summary>
-> <br/>
+>
 > The reason I did this was two-fold:
-> 
+>
 > 1. I wanted all resources to be as true to the current documentation as possible and filled with top-level expert information.
 > 2. I think it's important to make AI useful and that includes avoiding slop. A big part of that is ensuring the code we write follows the best practices set out by the Godot documentation and team itself.
-> 
-> <br/>
+>
 > My hope is that this agentic skillset will allow anyone to make a game if they wish and have it be good and natively, and proactively follow best practices. Not everyone is gifted with the detailed vocabulary specific to Godot they may need to make their dream game come true. I hope GDSkills acts as an assistant and expert in making them quickly come to reality.
-> <br/><br/>
+>
 > I have many things I want to add to this project and a lot of testing and things I would like to do to ensure it continues to improve in quality over time.
-> <br/><br/>
+>
 > Please enjoy and remember to use AI for good. Most importantly, have fun and dream big!
 > </details>
 
@@ -55,14 +52,10 @@
 - **godot-master**: Full mirror sync of domain skill references and bundled scripts for 4.7.
 - **Persona Squad**: Anara, Aurelius, and Builder updated for 4.7 scoring, never-lists, and `GODOT_PATH` CLI overrides.
 
-<br/>
-
 ---
 
 <details>
 <summary><b>📜 Update Archive</b></summary>
-
-<br/>
 
 <div align="center">
   <img src="assets/banner_0_0_7.webp" alt="The Analyze, Audit, Build! Update - v0.0.7" width="100%" />
@@ -74,8 +67,6 @@
 - **Full Skills Audit**: Completed a comprehensive and rigorous audit of all microskills to elevate the knowledge depth and execution quality to the highest agentic standard.
 - **Lead Architect Sync**: Synchronized all audited advancements with the central `godot-master` hub, making the orchestrator smarter, faster, and more robust.
 
-<br/>
-
 <div align="center">
   <img src="assets/banner_0_0_6.webp" alt="The Expert Augmentation Update - v0.0.6" width="100%" />
 </div>
@@ -84,8 +75,6 @@
 - **Microskill Overhaul**: We spent many hours updating *all* microskills to contain top expert-level knowledge, directly extracted from the Godot documentation. This massive update ensures all resources are true to the current engine state, empowering developers with best practices and reducing AI slop.
 - **Godot Master Takes Control**: We updated the `godot-master` skill to fully orchestrate and integrate this major skill update. It is now a true, all-in-one Godot Master skill!
 - **Feedback Requested**: We'd love your feedback on the new updates! The easiest way to share your thoughts is to [open an issue or start a discussion on our GitHub](https://github.com/thedivergentai/gd-agentic-skills/issues).
-
-<br/>
 
 <div align="center">
   <img src="assets/banner_0_0_5.webp" alt="The Looper Update - v0.0.5" width="100%" />
@@ -116,8 +105,6 @@
 - **Master Integration**: Unified the Romance skill into the [godot-master](skills/godot-master/SKILL.md) orchestration layer.
 - **Production Scripts**: Added battle-tested GDScript patterns for affection tracking, relationship routing, and date events.
 
-<br/>
-
 <div align="center">
   <img src="assets/banner_0_0_2.webp" alt="Master Skill Evolution - v0.0.2" width="100%" />
 </div>
@@ -126,8 +113,6 @@
 - **Unified Architecture**: Upgraded `godot-master` to an all-in-one orchestration layer for all 87 specialized skills.
 - **Decision Matrix**: Integrated expert-level Godot 4 architectural decision trees and anti-pattern guides.
 - **Workflow Scaffolding**: Added programmatic scene building and project initialization patterns.
-
-<br/>
 
 <div align="center">
   <img src="assets/banner_0_0_1.webp" alt="Initial Launch - v0.0.1" width="100%" />
@@ -528,7 +513,15 @@ We welcome contributions from developers and agents!
 
 If this project accelerates your Godot development or empowers your AI agents, consider starring the repository! ⭐
 
-[![Star History Chart](https://api.star-history.com/svg?repos=thedivergentai/gd-agentic-skills&type=Date&theme=dark)](https://star-history.com/#thedivergentai/gd-agentic-skills&Date)
+<div align="center">
+  <a href="https://www.star-history.com/?repos=thedivergentai%2Fgd-agentic-skills&type=date&legend=top-left">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=thedivergentai/gd-agentic-skills&type=date&theme=dark&legend=top-left&sealed_token=Xe5JhXIEF6bMFKUyCCrx-pT8unUpUMeMgsMTeH0xVESF3KzFylGfclgEm3L_SDLcLyyL0HNCyx2lZJPhIPPtGfivmpovGZBmPFdyBx66prfBvqcdmeEe1OUJfQgnhsAPjtQ1-tAAdeqnm8kdFv4SCQR4iu0kudwu2u-T2jKPtYQ7Se5ffflyz5ELr2BZ" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=thedivergentai/gd-agentic-skills&type=date&legend=top-left&sealed_token=Xe5JhXIEF6bMFKUyCCrx-pT8unUpUMeMgsMTeH0xVESF3KzFylGfclgEm3L_SDLcLyyL0HNCyx2lZJPhIPPtGfivmpovGZBmPFdyBx66prfBvqcdmeEe1OUJfQgnhsAPjtQ1-tAAdeqnm8kdFv4SCQR4iu0kudwu2u-T2jKPtYQ7Se5ffflyz5ELr2BZ" />
+      <img alt="GD Agentic Skills Star History Chart" src="https://api.star-history.com/chart?repos=thedivergentai/gd-agentic-skills&type=date&legend=top-left&sealed_token=Xe5JhXIEF6bMFKUyCCrx-pT8unUpUMeMgsMTeH0xVESF3KzFylGfclgEm3L_SDLcLyyL0HNCyx2lZJPhIPPtGfivmpovGZBmPFdyBx66prfBvqcdmeEe1OUJfQgnhsAPjtQ1-tAAdeqnm8kdFv4SCQR4iu0kudwu2u-T2jKPtYQ7Se5ffflyz5ELr2BZ" />
+    </picture>
+  </a>
+</div>
 
 ---
 
