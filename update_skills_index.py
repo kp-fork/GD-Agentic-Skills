@@ -9,12 +9,14 @@ SKILLS_DIR = os.path.join(os.path.dirname(__file__), "skills")
 OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "skills_index.json")
 
 def get_frontmatter(content):
-    match = re.search(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+    # Tolerate UTF-8 BOM and CRLF so frontmatter still parses on Windows-authored files.
+    content = content.lstrip("\ufeff")
+    match = re.search(r'^---\s*\r?\n(.*?)\r?\n---', content, re.DOTALL)
     if not match:
         return {}
     
     data = {}
-    for line in match.group(1).split('\n'):
+    for line in match.group(1).splitlines():
         if ':' in line:
             key, val = line.split(':', 1)
             data[key.strip()] = val.strip()
@@ -50,7 +52,7 @@ def update_index():
             
             if os.path.exists(skill_md_path):
                 try:
-                    with open(skill_md_path, 'r', encoding='utf-8') as f:
+                    with open(skill_md_path, 'r', encoding='utf-8-sig') as f:
                         content = f.read()
                         
                         fm = get_frontmatter(content)
