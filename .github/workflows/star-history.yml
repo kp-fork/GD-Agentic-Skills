@@ -32,10 +32,9 @@ jobs:
 
       - name: Generate star history
         env:
-          # Prefer the Actions job token (works for public stargazer lists).
-          # Optional STAR_HISTORY_TOKEN is fallback only — do not override GITHUB_TOKEN.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Classic PAT with public_repo (required — Actions GITHUB_TOKEN gets 403 here).
           STAR_HISTORY_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/generate_star_history.py --out-dir site
 

@@ -43,20 +43,19 @@ def die(msg: str, code: int = 1) -> None:
 
 
 def tokens_from_env() -> list[str]:
-    """Prefer Actions GITHUB_TOKEN; optional STAR_HISTORY_TOKEN is fallback only.
+    """Prefer STAR_HISTORY_TOKEN when set; Actions GITHUB_TOKEN is fallback.
 
-    Fine-grained PATs with Metadata-only cannot list stargazers
-    ("Resource not accessible by personal access token"). The default
-    Actions GITHUB_TOKEN can, for public repos.
+    Fine-grained Metadata-only PATs and restricted Actions tokens often get
+    403 on List Stargazers. A classic PAT with `public_repo` works.
     """
-    primary = (os.environ.get("GITHUB_TOKEN") or "").strip()
-    alt = (os.environ.get("STAR_HISTORY_TOKEN") or "").strip()
+    primary = (os.environ.get("STAR_HISTORY_TOKEN") or "").strip()
+    alt = (os.environ.get("GITHUB_TOKEN") or "").strip()
     ordered: list[str] = []
     for tok in (primary, alt):
         if tok and tok not in ordered:
             ordered.append(tok)
     if not ordered:
-        die("Set GITHUB_TOKEN (preferred) or STAR_HISTORY_TOKEN")
+        die("Set STAR_HISTORY_TOKEN (classic PAT with public_repo) or GITHUB_TOKEN")
     return ordered
 
 
@@ -126,7 +125,6 @@ def api_get(url: str, token: str, accept: str = ACCEPT_STAR) -> tuple[Any, dict[
                 time.sleep(wait)
                 retries += 1
                 continue
-            # Permission / other errors: raise with body attached for callers.
             err = urllib.error.HTTPError(e.url, e.code, detail or e.msg, e.hdrs, None)
             raise err from None
         except urllib.error.URLError as e:
@@ -144,10 +142,10 @@ def api_get_with_fallback(url: str, tokens: list[str]) -> tuple[Any, dict[str, s
             return api_get(url, token)
         except urllib.error.HTTPError as e:
             last_detail = str(e.reason) if e.reason else ""
-            inaccessible = "not accessible by personal access token" in last_detail.lower()
-            if e.code == 403 and inaccessible and i + 1 < len(tokens):
+            # Any auth/permission 403 → try next token (Actions vs PAT differ).
+            if e.code == 403 and i + 1 < len(tokens):
                 print(
-                    f"Token {i + 1}/{len(tokens)} cannot access stargazers (403); trying next…",
+                    f"Token {i + 1}/{len(tokens)} got HTTP 403; trying next…",
                     file=sys.stderr,
                 )
                 continue
