@@ -49,7 +49,7 @@
 
 - **The Reference Lattice**: Every Domain Skill now ends with a curated Official Documentation lattice (`docs.godotengine.org/en/stable/…`) plus detailed Related Skills (Prerequisites / Complements / Downstream / Master), so agents can research deeper without leaving the skill graph.
 - **Script & reference footers**: Research-link comment blocks on Domain Skill scripts and phase docs (marker `GDSkills research links (agents)`) — non-executing, file-specific, progressive disclosure.
-- **SPECIAL MENTION —** <a href="https://github.com/DedInc"><img src="https://github.com/DedInc.png?size=64" width="22" height="22" alt="@DedInc" style="border-radius:50%; vertical-align:middle;" /></a> [**@DedInc**](https://github.com/DedInc): First external Domain Skill — [godot-monte-carlo-balancer](skills/godot-monte-carlo-balancer/SKILL.md) — source-driven Monte Carlo balance lab (Rust + rayon), Resource-first extract, playstyle CI bands, economy careers, and headless Godot calibration. Thank you!
+- **SPECIAL MENTION —** <a href="https://github.com/DedInc"><img src="https://wsrv.nl/?url=github.com/DedInc.png&w=64&h=64&mask=circle&fit=cover&maxage=1w" width="22" height="22" alt="@DedInc" /></a> [**@DedInc**](https://github.com/DedInc): First external Domain Skill — [godot-monte-carlo-balancer](skills/godot-monte-carlo-balancer/SKILL.md) — source-driven Monte Carlo balance lab (Rust + rayon), Resource-first extract, playstyle CI bands, economy careers, and headless Godot calibration. Thank you!
 
 ---
 
@@ -377,7 +377,7 @@ Think of Domain Skills as your **component library**: Drop them into your projec
 - **[godot-inventory-system](skills/godot-inventory-system/SKILL.md)**: Slot-based containers, stacking logic, drag-drop UI
 - **[godot-mechanic-revival](skills/godot-mechanic-revival/SKILL.md)**: Souls-like mortality, corpse runs, revival charges, consequence tracking
 - **[godot-mechanic-secrets](skills/godot-mechanic-secrets/SKILL.md)**: Input sequence buffering (Konami code), interaction thresholds, secret persistence
-- **[godot-monte-carlo-balancer](skills/godot-monte-carlo-balancer/SKILL.md)**: Source-driven Monte Carlo balance lab, playstyle win-rate bands, economy careers, CI snapshots — co-authored by <a href="https://github.com/DedInc"><img src="https://github.com/DedInc.png?size=48" width="18" height="18" alt="@DedInc" style="border-radius:50%; vertical-align:middle;" /></a> [@DedInc](https://github.com/DedInc)
+- **[godot-monte-carlo-balancer](skills/godot-monte-carlo-balancer/SKILL.md)**: Source-driven Monte Carlo balance lab, playstyle win-rate bands, economy careers, CI snapshots — co-authored by <a href="https://github.com/DedInc"><img src="https://wsrv.nl/?url=github.com/DedInc.png&w=48&h=48&mask=circle&fit=cover&maxage=1w" width="18" height="18" alt="@DedInc" /></a> [@DedInc](https://github.com/DedInc)
 - **[godot-quest-system](skills/godot-quest-system/SKILL.md)**: Quest graphs, prerequisites, state tracking
 - **[godot-rpg-stats](skills/godot-rpg-stats/SKILL.md)**: Stat modifiers, attribute scaling, damage formulas
 - **[godot-save-load-systems](skills/godot-save-load-systems/SKILL.md)**: Dictionary serialization, delta-save patterns, encryption
@@ -547,15 +547,27 @@ We welcome contributions from developers and agents!
 
 If this project accelerates your Godot development or empowers your AI agents, consider starring the repository! ⭐
 
+Self-hosted Lattice chart (updated daily via GitHub Actions → Pages). Time-series JSON: [star-history.json](https://thedivergentai.github.io/gd-agentic-skills/star-history.json).
+
 <div align="center">
-  <a href="https://www.star-history.com/?repos=thedivergentai%2Fgd-agentic-skills&type=date&legend=top-left">
+  <a href="https://github.com/thedivergentai/gd-agentic-skills/stargazers">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=thedivergentai/gd-agentic-skills&type=date&theme=dark&legend=top-left&sealed_token=Xe5JhXIEF6bMFKUyCCrx-pT8unUpUMeMgsMTeH0xVESF3KzFylGfclgEm3L_SDLcLyyL0HNCyx2lZJPhIPPtGfivmpovGZBmPFdyBx66prfBvqcdmeEe1OUJfQgnhsAPjtQ1-tAAdeqnm8kdFv4SCQR4iu0kudwu2u-T2jKPtYQ7Se5ffflyz5ELr2BZ" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=thedivergentai/gd-agentic-skills&type=date&legend=top-left&sealed_token=Xe5JhXIEF6bMFKUyCCrx-pT8unUpUMeMgsMTeH0xVESF3KzFylGfclgEm3L_SDLcLyyL0HNCyx2lZJPhIPPtGfivmpovGZBmPFdyBx66prfBvqcdmeEe1OUJfQgnhsAPjtQ1-tAAdeqnm8kdFv4SCQR4iu0kudwu2u-T2jKPtYQ7Se5ffflyz5ELr2BZ" />
-      <img alt="GD Agentic Skills Star History Chart" src="https://api.star-history.com/chart?repos=thedivergentai/gd-agentic-skills&type=date&legend=top-left&sealed_token=Xe5JhXIEF6bMFKUyCCrx-pT8unUpUMeMgsMTeH0xVESF3KzFylGfclgEm3L_SDLcLyyL0HNCyx2lZJPhIPPtGfivmpovGZBmPFdyBx66prfBvqcdmeEe1OUJfQgnhsAPjtQ1-tAAdeqnm8kdFv4SCQR4iu0kudwu2u-T2jKPtYQ7Se5ffflyz5ELr2BZ" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://thedivergentai.github.io/gd-agentic-skills/star-history-dark.svg" />
+      <source media="(prefers-color-scheme: light)" srcset="https://thedivergentai.github.io/gd-agentic-skills/star-history-light.svg" />
+      <img alt="GD Agentic Skills Star History Chart" src="https://thedivergentai.github.io/gd-agentic-skills/star-history-dark.svg" width="100%" />
     </picture>
   </a>
 </div>
+
+<details>
+<summary>Maintainer: enable / refresh the chart</summary>
+
+1. **Repo → Settings → Pages → Build and deployment → Source:** GitHub Actions.
+2. Optional: add a fine-grained PAT as secret `STAR_HISTORY_TOKEN` (read access to repository metadata) if the default `GITHUB_TOKEN` cannot list stargazer timestamps.
+3. Run **Actions → Star History → Run workflow**, or wait for the daily 06:00 UTC schedule.
+4. Charts deploy to `https://thedivergentai.github.io/gd-agentic-skills/` (SVG + JSON). Nothing is committed to `main` on each update.
+
+</details>
 
 ---
 
@@ -595,7 +607,7 @@ We chose this license because it strikes the perfect balance for an open ecosyst
 
 <div align="center">
 
-<a href="https://github.com/thedivergentai"><img src="https://github.com/thedivergentai.png?size=96" width="36" height="36" alt="Divergent AI" style="border-radius:50%; vertical-align:middle;" /></a>
+<a href="https://github.com/thedivergentai"><img src="https://wsrv.nl/?url=github.com/thedivergentai.png&w=96&h=96&mask=circle&fit=cover&maxage=1w" width="36" height="36" alt="Divergent AI" /></a>
 &nbsp;**Authored by [Divergent AI](https://github.com/thedivergentai)**  
 **Maintained by the Agents**
 

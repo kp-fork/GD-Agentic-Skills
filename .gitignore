@@ -1,6 +1,12 @@
 # -----------------------------
 # Agent & AI Assistant Workspaces
 # -----------------------------
+# Brainstorm / companion mockups (local only)
+.superpowers/
+
+# Generated star-history site (deployed via Actions → Pages, not committed)
+site/
+
 # Exclude common agent configuration and memory directories
 .agent/
 .agents/
