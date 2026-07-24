@@ -547,8 +547,6 @@ We welcome contributions from developers and agents!
 
 If this project accelerates your Godot development or empowers your AI agents, consider starring the repository! ⭐
 
-Self-hosted Lattice chart (updated daily via GitHub Actions → Pages). Time-series JSON: [star-history.json](https://thedivergentai.github.io/gd-agentic-skills/star-history.json).
-
 <div align="center">
   <a href="https://github.com/thedivergentai/gd-agentic-skills/stargazers">
     <picture>
@@ -558,16 +556,6 @@ Self-hosted Lattice chart (updated daily via GitHub Actions → Pages). Time-ser
     </picture>
   </a>
 </div>
-
-<details>
-<summary>Maintainer: enable / refresh the chart</summary>
-
-1. **Repo → Settings → Pages → Build and deployment → Source:** GitHub Actions.
-2. Optional: add a fine-grained PAT as secret `STAR_HISTORY_TOKEN` (read access to repository metadata) if the default `GITHUB_TOKEN` cannot list stargazer timestamps.
-3. Run **Actions → Star History → Run workflow**, or wait for the daily 06:00 UTC schedule.
-4. Charts deploy to `https://thedivergentai.github.io/gd-agentic-skills/` (SVG + JSON). Nothing is committed to `main` on each update.
-
-</details>
 
 ---
 
