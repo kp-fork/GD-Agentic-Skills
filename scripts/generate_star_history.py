@@ -15,6 +15,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
+import subprocess
 import sys
 import time
 import urllib.error
@@ -33,8 +35,15 @@ MAX_PAGES = 400  # GitHub pagination cap (~40k stars)
 USER_AGENT = "gd-agentic-skills-star-history/1.0"
 
 WIDTH = 1200
-HEIGHT = 400
-PAD_L, PAD_R, PAD_T, PAD_B = 72, 48, 72, 56
+HEIGHT = 420
+PAD_L, PAD_R, PAD_T, PAD_B = 72, 48, 78, 64
+Y_STEP = 100
+
+VERSION_RE = re.compile(r"\bv?(\d+\.\d+\.\d+)\b", re.I)
+# Prefer real release commits over incidental version mentions in docs.
+RELEASE_SUBJECT_RE = re.compile(
+    r"(?i)^(release:|feat:\s*ship\s+|feat\(release\)|feat:\s*v\d|feat:\s*initial\b)"
+)
 
 
 def die(msg: str, code: int = 1) -> None:
@@ -135,11 +144,15 @@ def api_get(url: str, token: str, accept: str = ACCEPT_STAR) -> tuple[Any, dict[
             die(f"Network error: {e}")
 
 
-def api_get_with_fallback(url: str, tokens: list[str]) -> tuple[Any, dict[str, str]]:
+def api_get_with_fallback(
+    url: str,
+    tokens: list[str],
+    accept: str = ACCEPT_STAR,
+) -> tuple[Any, dict[str, str]]:
     last_detail = ""
     for i, token in enumerate(tokens):
         try:
-            return api_get(url, token)
+            return api_get(url, token, accept=accept)
         except urllib.error.HTTPError as e:
             last_detail = str(e.reason) if e.reason else ""
             # Any auth/permission 403 → try next token (Actions vs PAT differ).
@@ -233,9 +246,7 @@ def downsample(points: list[dict[str, Any]], max_points: int = 400) -> list[dict
     for i in range(max_points):
         idx = int(round(i * step))
         out.append(points[idx])
-    # Ensure last point exact
     out[-1] = points[-1]
-    # Deduplicate consecutive identical dates
     deduped: list[dict[str, Any]] = []
     for p in out:
         if deduped and deduped[-1]["date"] == p["date"]:
@@ -251,6 +262,139 @@ def fmt_int(n: int) -> str:
 
 def month_label(d: date) -> str:
     return d.strftime("%b %Y").upper()
+
+
+def nice_y_max(n: int, step: int = Y_STEP) -> int:
+    if n <= 0:
+        return step
+    return ((n + step - 1) // step) * step
+
+
+def stars_at_or_before(points: list[dict[str, Any]], day: date) -> int:
+    """Cumulative stars on the last known day on/before `day`."""
+    key = day.isoformat()
+    last = 0
+    for p in points:
+        if p["date"] <= key:
+            last = int(p["stars"])
+        else:
+            break
+    return last
+
+
+def _version_key(ver: str) -> tuple[int, ...]:
+    parts = []
+    for bit in ver.split("."):
+        try:
+            parts.append(int(bit))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
+
+
+def _pick_milestones(candidates: list[tuple[str, date, bool, str]]) -> list[dict[str, Any]]:
+    """candidates: (version, day, is_release_hint, subject). One entry per version."""
+    best: dict[str, tuple[date, bool, str]] = {}
+    for ver, day, hint, subject in candidates:
+        prev = best.get(ver)
+        if prev is None:
+            best[ver] = (day, hint, subject)
+            continue
+        prev_day, prev_hint, _ = prev
+        # Prefer release-like subjects; otherwise earliest date for that version.
+        if hint and not prev_hint:
+            best[ver] = (day, hint, subject)
+        elif hint == prev_hint and day < prev_day:
+            best[ver] = (day, hint, subject)
+        elif not hint and not prev_hint and day < prev_day:
+            best[ver] = (day, hint, subject)
+    milestones = [
+        {"version": f"v{ver}", "date": day.isoformat(), "subject": subject}
+        for ver, (day, _, subject) in best.items()
+    ]
+    milestones.sort(key=lambda m: (_version_key(m["version"].lstrip("v")), m["date"]))
+    return milestones
+
+
+def fetch_milestones_from_git() -> list[dict[str, Any]]:
+    try:
+        out = subprocess.check_output(
+            ["git", "log", "--all", "--pretty=format:%cI\t%s"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return []
+    candidates: list[tuple[str, date, bool, str]] = []
+    for line in out.splitlines():
+        if "\t" not in line:
+            continue
+        ts, subject = line.split("\t", 1)
+        m = VERSION_RE.search(subject)
+        if not m:
+            continue
+        ver = m.group(1)
+        # Only this project's 0.0.x release train (ignore random semver in deps/docs).
+        if not ver.startswith("0.0."):
+            continue
+        try:
+            day = datetime.fromisoformat(ts.replace("Z", "+00:00")).date()
+        except ValueError:
+            continue
+        hint = bool(RELEASE_SUBJECT_RE.search(subject.strip()))
+        candidates.append((ver, day, hint, subject.strip()))
+    return _pick_milestones(candidates)
+
+
+def fetch_milestones_from_api(repo: str, tokens: list[str]) -> list[dict[str, Any]]:
+    """Fallback when git history is shallow / unavailable."""
+    candidates: list[tuple[str, date, bool, str]] = []
+    page = 1
+    while page <= 10:
+        qs = urllib.parse.urlencode({"per_page": 100, "page": page})
+        url = f"{API_ROOT}/repos/{repo}/commits?{qs}"
+        try:
+            rows, _ = api_get_with_fallback(
+                url, tokens, accept="application/vnd.github+json"
+            )
+        except SystemExit:
+            break
+        if not isinstance(rows, list) or not rows:
+            break
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            commit = row.get("commit") or {}
+            subject = (commit.get("message") or "").split("\n", 1)[0].strip()
+            m = VERSION_RE.search(subject)
+            if not m:
+                continue
+            ver = m.group(1)
+            if not ver.startswith("0.0."):
+                continue
+            author = commit.get("committer") or commit.get("author") or {}
+            ts = author.get("date") or ""
+            try:
+                day = datetime.fromisoformat(ts.replace("Z", "+00:00")).date()
+            except ValueError:
+                continue
+            hint = bool(RELEASE_SUBJECT_RE.search(subject))
+            candidates.append((ver, day, hint, subject))
+        if len(rows) < 100:
+            break
+        page += 1
+    return _pick_milestones(candidates)
+
+
+def fetch_milestones(repo: str, tokens: list[str]) -> list[dict[str, Any]]:
+    milestones = fetch_milestones_from_git()
+    if milestones:
+        print(f"Milestones from git: {len(milestones)}", file=sys.stderr)
+        return milestones
+    milestones = fetch_milestones_from_api(repo, tokens)
+    print(f"Milestones from API: {len(milestones)}", file=sys.stderr)
+    return milestones
 
 
 def theme_palette(theme: str) -> dict[str, str]:
@@ -269,6 +413,8 @@ def theme_palette(theme: str) -> dict[str, str]:
             "pill_fg": "#F3F7F4",
             "panel": "#FFFFFF",
             "glow": "#3FB950",
+            "milestone": "#0F5132",
+            "milestone_label": "#0B1A12",
         }
     return {
         "bg0": "#0B1A12",
@@ -284,6 +430,8 @@ def theme_palette(theme: str) -> dict[str, str]:
         "pill_fg": "#041208",
         "panel": "#0B1A12",
         "glow": "#3FB950",
+        "milestone": "#86EFAC",
+        "milestone_label": "#D1FAE5",
     }
 
 
@@ -291,8 +439,10 @@ def render_svg(
     points: list[dict[str, Any]],
     repo: str,
     theme: str,
+    milestones: list[dict[str, Any]] | None = None,
 ) -> str:
     pal = theme_palette(theme)
+    milestones = milestones or []
     plot = downsample(points)
     total = int(plot[-1]["stars"]) if plot else 0
     start_d = date.fromisoformat(plot[0]["date"]) if plot else date.today()
@@ -303,13 +453,19 @@ def render_svg(
     chart_w = WIDTH - PAD_L - PAD_R
     chart_h = HEIGHT - PAD_T - PAD_B
 
-    max_stars = max((int(p["stars"]) for p in plot), default=1) or 1
-    n = len(plot)
+    y_max = nice_y_max(max((int(p["stars"]) for p in plot), default=0))
+    span_days = max(1, (end_d - start_d).days)
+
+    def x_for(d: date) -> float:
+        return chart_x + ((d - start_d).days / span_days) * chart_w
+
+    def y_for(stars: int) -> float:
+        return chart_y + chart_h - (stars / y_max) * chart_h
+
     coords: list[tuple[float, float]] = []
-    for i, p in enumerate(plot):
-        x = chart_x if n == 1 else chart_x + (i / (n - 1)) * chart_w
-        y = chart_y + chart_h - (int(p["stars"]) / max_stars) * chart_h
-        coords.append((x, y))
+    for p in plot:
+        d = date.fromisoformat(p["date"])
+        coords.append((x_for(d), y_for(int(p["stars"]))))
 
     def path_line() -> str:
         if not coords:
@@ -329,46 +485,93 @@ def render_svg(
         parts.append(f"L{coords[-1][0]:.2f},{bottom:.2f} Z")
         return " ".join(parts)
 
-    # Axis ticks: ~4 x labels, ~3 y labels
-    x_labels = []
-    if n >= 2:
-        for frac, anchor in ((0.0, "start"), (0.5, "middle"), (1.0, "end")):
-            idx = int(round(frac * (n - 1)))
-            d = date.fromisoformat(plot[idx]["date"])
-            x = coords[idx][0]
-            x_labels.append((x, month_label(d), anchor))
-    y_labels = []
-    for frac in (0.0, 0.5, 1.0):
-        stars = int(round(max_stars * frac))
-        y = chart_y + chart_h - frac * chart_h
-        y_labels.append((y, fmt_int(stars)))
+    # X ticks: one per month in range (cap density).
+    x_labels: list[tuple[float, str, str]] = []
+    months: list[date] = []
+    cursor = date(start_d.year, start_d.month, 1)
+    end_month = date(end_d.year, end_d.month, 1)
+    while cursor <= end_month:
+        months.append(cursor)
+        if cursor.month == 12:
+            cursor = date(cursor.year + 1, 1, 1)
+        else:
+            cursor = date(cursor.year, cursor.month + 1, 1)
+    # Always include start/end if missing
+    if not months or months[0] != start_d.replace(day=1):
+        pass
+    step = 1 if len(months) <= 8 else max(1, len(months) // 6)
+    shown = months[::step]
+    if months and months[-1] not in shown:
+        shown.append(months[-1])
+    for i, m in enumerate(shown):
+        # Clamp label position into chart range
+        d = max(start_d, min(end_d, m))
+        x = x_for(d)
+        if i == 0:
+            anchor = "start"
+        elif i == len(shown) - 1:
+            anchor = "end"
+        else:
+            anchor = "middle"
+        x_labels.append((x, month_label(m), anchor))
 
-    # Sample node dots along the curve
-    node_idxs = set()
-    if n >= 2:
-        for frac in (0.25, 0.5, 0.75, 1.0):
-            node_idxs.add(int(round(frac * (n - 1))))
-    nodes_svg = "".join(
-        f'<circle cx="{coords[i][0]:.2f}" cy="{coords[i][1]:.2f}" r="4" fill="{pal["line"]}"/>'
-        for i in sorted(node_idxs)
-        if i < n
-    )
+    # Y ticks every 100
+    y_labels: list[tuple[float, str]] = []
+    for stars in range(0, y_max + 1, Y_STEP):
+        y_labels.append((y_for(stars), fmt_int(stars)))
+
+    # Milestones on/inside the visible range
+    milestone_svg_parts: list[str] = []
+    label_slot = 0
+    for ms in milestones:
+        try:
+            day = date.fromisoformat(ms["date"])
+        except ValueError:
+            continue
+        # Clamp early release commits to the first star day so v0.0.1 still marks.
+        if day < start_d:
+            if (start_d - day).days <= 14:
+                day = start_d
+            else:
+                continue
+        if day > end_d:
+            continue
+        stars = stars_at_or_before(points, day)
+        x = x_for(day)
+        y = y_for(stars)
+        ver = escape(str(ms.get("version", "")))
+        # Stagger labels so overlapping releases stay readable
+        label_y = y - 14 - (label_slot % 3) * 12
+        label_slot += 1
+        if label_y < chart_y + 10:
+            label_y = chart_y + 12 + (label_slot % 3) * 12
+        milestone_svg_parts.append(
+            f'<line x1="{x:.2f}" y1="{chart_y}" x2="{x:.2f}" y2="{chart_y + chart_h}" '
+            f'stroke="{pal["milestone"]}" stroke-width="1" stroke-dasharray="3 4" opacity="0.45"/>'
+            f'<circle cx="{x:.2f}" cy="{y:.2f}" r="5.5" fill="{pal["bg0"]}" '
+            f'stroke="{pal["milestone"]}" stroke-width="2.2"/>'
+            f'<circle cx="{x:.2f}" cy="{y:.2f}" r="2.2" fill="{pal["milestone"]}"/>'
+            f'<text x="{x:.2f}" y="{label_y:.2f}" text-anchor="middle" '
+            f'fill="{pal["milestone_label"]}" font-family="Consolas, ui-monospace, monospace" '
+            f'font-size="10" font-weight="700">{ver}</text>'
+        )
+    milestones_svg = "".join(milestone_svg_parts)
 
     uid = "d" if theme == "dark" else "l"
     repo_short = repo.split("/")[-1] if "/" in repo else repo
     title = "STAR HISTORY"
     meta_right = "GD AGENTIC SKILLS"
-    subtitle = (
-        f"{fmt_int(total)} stars · {start_d.isoformat()} → {end_d.isoformat()}"
-    )
+    subtitle = f"{fmt_int(total)} stars · {start_d.isoformat()} → {end_d.isoformat()}"
 
     x_label_svg = "".join(
-        f'<text x="{x:.2f}" y="{HEIGHT - 18}" text-anchor="{anchor}" '
+        f'<text x="{x:.2f}" y="{HEIGHT - 20}" text-anchor="{anchor}" '
         f'fill="{pal["axis"]}" font-family="Consolas, ui-monospace, monospace" '
         f'font-size="12">{escape(label)}</text>'
         for x, label, anchor in x_labels
     )
     y_label_svg = "".join(
+        f'<line x1="{chart_x}" y1="{y:.2f}" x2="{chart_x + chart_w}" y2="{y:.2f}" '
+        f'stroke="{pal["grid"]}" stroke-width="0.6" opacity="0.35"/>'
         f'<text x="{PAD_L - 12}" y="{y + 4:.2f}" text-anchor="end" '
         f'fill="{pal["axis"]}" font-family="Consolas, ui-monospace, monospace" '
         f'font-size="11">{escape(label)}</text>'
@@ -378,7 +581,7 @@ def render_svg(
     svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" role="img" aria-label="Star history for {escape(repo)}">
   <title>Star history — {escape(repo)} ({fmt_int(total)} stars)</title>
-  <desc>{escape(subtitle)}. Data: GitHub stargazers API. Style: Lattice Terminal.</desc>
+  <desc>{escape(subtitle)}. Release milestones marked. Data: GitHub stargazers API. Style: Lattice Terminal.</desc>
   <defs>
     <linearGradient id="bg-{uid}" x1="0.2" y1="0" x2="0.8" y2="1">
       <stop offset="0%" stop-color="{pal["bg0"]}"/>
@@ -407,13 +610,13 @@ def render_svg(
   <text x="{WIDTH - 48}" y="38" text-anchor="end" fill="{pal["meta"]}" font-family="Consolas, ui-monospace, monospace" font-size="12" letter-spacing="1">{escape(meta_right)}</text>
   <line x1="48" y1="52" x2="320" y2="52" stroke="{pal["line"]}" stroke-width="1" opacity="0.75"/>
   <text x="48" y="66" fill="{pal["meta"]}" font-family="Consolas, ui-monospace, monospace" font-size="12">{escape(subtitle)} · {escape(repo_short)}</text>
+  {y_label_svg}
   <path d="{path_area()}" fill="url(#fill-{uid})"/>
   <path d="{path_line()}" fill="none" stroke="{pal["line"]}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-{uid})"/>
-  {nodes_svg}
+  {milestones_svg}
   <line x1="{chart_x}" y1="{chart_y + chart_h}" x2="{chart_x + chart_w}" y2="{chart_y + chart_h}" stroke="{pal["grid"]}" stroke-width="1" opacity="0.6"/>
   <line x1="{chart_x}" y1="{chart_y}" x2="{chart_x}" y2="{chart_y + chart_h}" stroke="{pal["grid"]}" stroke-width="1" opacity="0.6"/>
   {x_label_svg}
-  {y_label_svg}
 </svg>
 '''
     return svg
@@ -423,23 +626,40 @@ def write_outputs(
     out_dir: Path,
     repo: str,
     points: list[dict[str, Any]],
+    milestones: list[dict[str, Any]],
 ) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Attach star counts at each milestone for tracking
+    enriched = []
+    for ms in milestones:
+        try:
+            day = date.fromisoformat(ms["date"])
+        except ValueError:
+            continue
+        row = dict(ms)
+        row["stars"] = stars_at_or_before(points, day)
+        enriched.append(row)
+
     payload = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repo": repo,
         "total": int(points[-1]["stars"]) if points else 0,
+        "y_step": Y_STEP,
+        "milestones": enriched,
         "points": points,
     }
     json_path = out_dir / "star-history.json"
     json_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {json_path} ({payload['total']} stars, {len(points)} daily points)", file=sys.stderr)
+    print(
+        f"Wrote {json_path} ({payload['total']} stars, {len(points)} daily points, "
+        f"{len(enriched)} milestones)",
+        file=sys.stderr,
+    )
 
     for theme, name in (("dark", "star-history-dark.svg"), ("light", "star-history-light.svg")):
-        svg = render_svg(points, repo, theme)
+        svg = render_svg(points, repo, theme, enriched)
         path = out_dir / name
         path.write_text(svg, encoding="utf-8")
-        # BOM check
         raw = path.read_bytes()
         if raw[:3] == b"\xef\xbb\xbf":
             die(f"BOM written to {path}; aborting")
@@ -461,7 +681,10 @@ def main() -> None:
     timestamps = fetch_starred_at(repo, tokens)
     print(f"Collected {len(timestamps)} stars", file=sys.stderr)
     points = build_daily_series(timestamps)
-    write_outputs(Path(args.out_dir), repo, points)
+    milestones = fetch_milestones(repo, tokens)
+    for ms in milestones:
+        print(f"  milestone {ms['version']} @ {ms['date']}", file=sys.stderr)
+    write_outputs(Path(args.out_dir), repo, points, milestones)
 
 
 if __name__ == "__main__":
