@@ -391,10 +391,33 @@ def fetch_milestones(repo: str, tokens: list[str]) -> list[dict[str, Any]]:
     milestones = fetch_milestones_from_git()
     if milestones:
         print(f"Milestones from git: {len(milestones)}", file=sys.stderr)
-        return milestones
-    milestones = fetch_milestones_from_api(repo, tokens)
-    print(f"Milestones from API: {len(milestones)}", file=sys.stderr)
-    return milestones
+    else:
+        milestones = fetch_milestones_from_api(repo, tokens)
+        print(f"Milestones from API: {len(milestones)}", file=sys.stderr)
+    return ensure_estimated_milestones(milestones)
+
+
+def ensure_estimated_milestones(milestones: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Fill known gaps when no release commit exists (e.g. v0.0.2)."""
+    have = {m["version"].lstrip("v").lower() for m in milestones}
+    # Master Skill Evolution — between v0.0.1 (2026-02-07) and v0.0.3 (2026-02-15);
+    # aligned with godot-master hub work around 2026-02-14.
+    estimates = [
+        {
+            "version": "v0.0.2",
+            "date": "2026-02-14",
+            "subject": "estimated: Master Skill Evolution (between v0.0.1 and v0.0.3)",
+            "estimated": True,
+        },
+    ]
+    out = list(milestones)
+    for est in estimates:
+        key = est["version"].lstrip("v").lower()
+        if key not in have:
+            out.append(est)
+            print(f"  estimated milestone {est['version']} @ {est['date']}", file=sys.stderr)
+    out.sort(key=lambda m: (_version_key(m["version"].lstrip("v")), m["date"]))
+    return out
 
 
 def theme_palette(theme: str) -> dict[str, str]:
