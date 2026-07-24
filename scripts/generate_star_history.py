@@ -338,6 +338,9 @@ def fetch_milestones_from_git() -> list[dict[str, Any]]:
         # Only this project's 0.0.x release train (ignore random semver in deps/docs).
         if not ver.startswith("0.0."):
             continue
+        # Skip tooling/meta commits that mention versions (e.g. star-history estimates).
+        if re.search(r"(?i)star-history|estimated milestone|milestone between", subject):
+            continue
         try:
             day = datetime.fromisoformat(ts.replace("Z", "+00:00")).date()
         except ValueError:
@@ -373,6 +376,8 @@ def fetch_milestones_from_api(repo: str, tokens: list[str]) -> list[dict[str, An
             ver = m.group(1)
             if not ver.startswith("0.0."):
                 continue
+            if re.search(r"(?i)star-history|estimated milestone|milestone between", subject):
+                continue
             author = commit.get("committer") or commit.get("author") or {}
             ts = author.get("date") or ""
             try:
@@ -398,24 +403,26 @@ def fetch_milestones(repo: str, tokens: list[str]) -> list[dict[str, Any]]:
 
 
 def ensure_estimated_milestones(milestones: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Fill known gaps when no release commit exists (e.g. v0.0.2)."""
-    have = {m["version"].lstrip("v").lower() for m in milestones}
-    # Master Skill Evolution — between v0.0.1 (2026-02-07) and v0.0.3 (2026-02-15);
-    # aligned with godot-master hub work around 2026-02-14.
-    estimates = [
-        {
+    """Force known estimated dates (override bad git matches, e.g. meta commits)."""
+    # Master Skill Evolution — between v0.0.1 (2026-02-07) and v0.0.3 (2026-02-15).
+    force: dict[str, dict[str, Any]] = {
+        "0.0.2": {
             "version": "v0.0.2",
             "date": "2026-02-14",
             "subject": "estimated: Master Skill Evolution (between v0.0.1 and v0.0.3)",
             "estimated": True,
         },
-    ]
-    out = list(milestones)
-    for est in estimates:
-        key = est["version"].lstrip("v").lower()
-        if key not in have:
-            out.append(est)
-            print(f"  estimated milestone {est['version']} @ {est['date']}", file=sys.stderr)
+    }
+    by_ver: dict[str, dict[str, Any]] = {}
+    for m in milestones:
+        key = m["version"].lstrip("v").lower()
+        if key in force:
+            continue  # drop git/API hits for forced estimates
+        by_ver[key] = m
+    for key, est in force.items():
+        by_ver[key] = dict(est)
+        print(f"  estimated milestone {est['version']} @ {est['date']}", file=sys.stderr)
+    out = list(by_ver.values())
     out.sort(key=lambda m: (_version_key(m["version"].lstrip("v")), m["date"]))
     return out
 
@@ -563,11 +570,12 @@ def render_svg(
         x = x_for(day)
         y = y_for(stars)
         ver = escape(str(ms.get("version", "")))
+        stars_label = escape(f"{fmt_int(stars)} ★")
         # Stagger labels so overlapping releases stay readable
-        label_y = y - 14 - (label_slot % 3) * 12
+        label_y = y - 18 - (label_slot % 3) * 16
         label_slot += 1
-        if label_y < chart_y + 10:
-            label_y = chart_y + 12 + (label_slot % 3) * 12
+        if label_y < chart_y + 18:
+            label_y = chart_y + 18 + (label_slot % 3) * 16
         milestone_svg_parts.append(
             f'<line x1="{x:.2f}" y1="{chart_y}" x2="{x:.2f}" y2="{chart_y + chart_h}" '
             f'stroke="{pal["milestone"]}" stroke-width="1" stroke-dasharray="3 4" opacity="0.45"/>'
@@ -577,6 +585,9 @@ def render_svg(
             f'<text x="{x:.2f}" y="{label_y:.2f}" text-anchor="middle" '
             f'fill="{pal["milestone_label"]}" font-family="Consolas, ui-monospace, monospace" '
             f'font-size="10" font-weight="700">{ver}</text>'
+            f'<text x="{x:.2f}" y="{label_y + 11:.2f}" text-anchor="middle" '
+            f'fill="{pal["meta"]}" font-family="Consolas, ui-monospace, monospace" '
+            f'font-size="9">{stars_label}</text>'
         )
     milestones_svg = "".join(milestone_svg_parts)
 
